@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD AUDIT BPM BAWASLU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================
+           DESAIN TATA LETAK UTAMA 
+           ========================================== */
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f0f4f8; color: #334155; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: #1e3a8a; color: white; padding: 0; display: flex; flex-direction: column; }
+        
+        /* Spanduk Putih di Atas untuk Logo */
+        .sidebar-header { background: white; padding: 25px 0 15px 0; text-align: center; border-bottom: 4px solid #f97316; margin-bottom: 20px; }
+        .wadah-dua-logo { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .wadah-dua-logo img { height: 60px; width: auto; object-fit: contain; }
+        .sidebar-header h2 { margin: 0; font-size: 16px; letter-spacing: 1px; color: #1e3a8a; font-weight: 800; }
+        
+        .menu-btn { background: none; border: none; color: #cbd5e1; padding: 15px 25px; text-align: left; font-size: 15px; font-family: 'Poppins'; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; width: 100%; }
+        .menu-btn:hover { background: #1e40af; color: white; }
+        .menu-btn.aktif { background: #1d4ed8; color: white; border-left: 4px solid #f97316; font-weight: bold; }
+
+        .konten-utama { flex: 1; padding: 40px; overflow-y: auto; }
+        .halaman { display: none; } 
+        .halaman.aktif { display: block; animation: muncul 0.5s ease; } 
+        @keyframes muncul { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==========================================
+           HEADER DASHBOARD (IDENTITAS & BATASAN)
+           ========================================== */
+        .header-dashboard { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+        .judul-teks h2 { margin: 0 0 5px 0; color: #1e3a8a; }
+        .judul-teks p { margin: 0; font-size: 13px; color: #64748b; font-style: italic; }
+        
+        .profil-container { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+        .badge-user { background: #e0f2fe; color: #0369a1; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #bae6fd; }
+        .btn-cetak-kecil { background: #1e40af; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-cetak-kecil:hover { background: #1e3a8a; }
+
+        /* ==========================================
+           DESAIN KARTU DAN GRAFIK 
+           ========================================== */
+        .grid-kartu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .kartu { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #f97316; }
+        .kartu h3 { margin: 0 0 10px 0; font-size: 14px; color: #64748b; }
+        .kartu h1 { margin: 0; font-size: 32px; color: #1e3a8a; }
+
+        .kotak-grafik { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px;}
+        
+        .keterangan-warna { display: flex; gap: 20px; font-size: 13px; margin-bottom: 25px; color: #475569; background: #f8fafc; padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .item-warna { display: flex; align-items: center; gap: 8px; }
+        .kotak-warna { width: 14px; height: 14px; border-radius: 3px; }
+
+        .batang-grafik { display: flex; align-items: center; margin-bottom: 15px; }
+        .label-grafik { width: 200px; font-weight: 500; font-size: 14px; }
+        .area-bar-grafik { flex: 1; background: #e2e8f0; height: 25px; border-radius: 5px; overflow: hidden; margin-right: 15px; }
+        .isi-bar-grafik { height: 100%; display: flex; align-items: center; padding-left: 10px; color: white; font-weight: bold; font-size: 12px;}
+
+        /* ==========================================
+           DESAIN HALAMAN ANALISIS & LOADING
+           ========================================== */
+        .kotak-putih { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; }
+        
+        .btn-eksekusi { width: 100%; background: #f97316; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-eksekusi:hover { background: #ea580c; }
+        .btn-eksekusi:disabled { background: #cbd5e1; cursor: not-allowed; }
+        
+        .grup-tombol { display: flex; gap: 15px; margin-top: 25px; }
+        .btn-cetak { flex: 1; background: #1e40af; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; }
+        .btn-cetak:hover { background: #1e3a8a; }
+        .btn-muat-ulang { flex: 1; background: #64748b; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; }
+        .btn-muat-ulang:hover { background: #475569; }
+
+        .kotak-rumus { background: #f8fafc; border: 1px dashed #94a3b8; padding: 15px; border-radius: 8px; margin-top: 15px; font-family: monospace; font-size: 14px; color: #334155; }
+        
+        .area-loading { display: none; text-align: center; padding: 40px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 20px; }
+        .roda-berputar { border: 5px solid #f1f5f9; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: putar 1s linear infinite; margin: 0 auto; }
+        @keyframes putar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Tabel Riwayat */
+        .tabel-biasa { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tabel-biasa th, .tabel-biasa td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 14px; }
+        .tabel-biasa th { background: #f1f5f9; }
+        @keyframes sorotBaris { from { background: #e0f2fe; } to { background: white; } }
+        .baris-baru { animation: sorotBaris 2s ease; }
+
+        /* ==========================================
+           PENGATURAN KHUSUS CETAK PDF
+           ========================================== */
+        @media print {
+            body { background: white; height: auto; overflow: visible; }
+            .sidebar, .area-input, .grup-tombol, .area-loading, .btn-cetak-kecil { display: none !important; }
+            .konten-utama { padding: 0 !important; width: 100% !important; margin: 0 !important; overflow: visible !important; }
+            .kotak-putih, .kotak-grafik, .kartu { box-shadow: none !important; border: 1px solid #cbd5e1 !important; margin-bottom: 20px !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <!-- Spanduk Putih Kustom untuk Logo -->
+        <div class="sidebar-header">
+            <div class="wadah-dua-logo">
+                <img src="/static/logo-saya.png" alt="Logo Audit">
+                <img src="/static/logo-kampus.jpeg" alt="Logo Kampus">
+            </div>
+            <h2>SISTEM AUDIT BPM</h2>
+        </div>
+        
+        <button class="menu-btn aktif" onclick="bukaMenu('hal-dashboard', this)">📊 Dashboard Utama</button>
+        <button class="menu-btn" onclick="bukaMenu('hal-analisis', this)">⚙️ Analisis Jaccard</button>
+    </div>
+
+    <div class="konten-utama">
+
+        <!-- HALAMAN 1: DASHBOARD -->
+        <div id="hal-dashboard" class="halaman aktif">
+            
+            <!-- HEADER BARU DENGAN IDENTITAS & TOMBOL CETAK -->
+            <div class="header-dashboard">
+                <div class="judul-teks">
+                    <h2>Ringkasan Eksekutif</h2>
+                    <p>*Sistem memproses komparasi struktural (.bpmn) antara SOP Tingkat Provinsi dan Kabupaten/Kota.</p>
+                </div>
+                <div class="profil-container">
+                    <div class="badge-user">👤 Auditor Internal Bawaslu</div>
+                    <button class="btn-cetak-kecil" onclick="window.print()">🖨️ Cetak Laporan Dasbor</button>
+                </div>
+            </div>
+            
+            <div class="grid-kartu">
+                <div class="kartu"><h3>Total SOP Dianalisis</h3><h1>4 Prosedur</h1></div>
+                <div class="kartu"><h3>Rata-Rata Kemiripan</h3><h1>71.54%</h1></div>
+                <div class="kartu"><h3>SOP Paling Identik</h3><h1 style="font-size: 20px; margin-top: 10px;">Pengunggahan (81.81%)</h1></div>
+            </div>
+
+            <div class="kotak-grafik">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Perbandingan Redundansi 4 Proses Bisnis</h3>
+                
+                <div class="keterangan-warna">
+                    <div class="item-warna"><div class="kotak-warna" style="background: #10b981;"></div> <b>≥ 80%</b> (Standarisasi Sudah Baik)</div>
+                    <div class="item-warna"><div class="kotak-warna" style="background: #f59e0b;"></div> <b>60% - 79%</b> (Perlu Penyempurnaan Alur)</div>
+                    <div class="item-warna"><div class="kotak-warna" style="background: #ef4444;"></div> <b>< 60%</b> (Perlu Re-engineering Total)</div>
+                </div>
+
+                <div class="batang-grafik">
+                    <div class="label-grafik">Pengunggahan Dokumen</div>
+                    <div class="area-bar-grafik"><div class="isi-bar-grafik" style="width: 81.81%; background: #10b981;">81.81%</div></div>
+                </div>
+                <div class="batang-grafik">
+                    <div class="label-grafik">Penghapusan Dokumen</div>
+                    <div class="area-bar-grafik"><div class="isi-bar-grafik" style="width: 69.23%; background: #f59e0b;">69.23%</div></div>
+                </div>
+                <div class="batang-grafik">
+                    <div class="label-grafik">Perubahan Dokumen</div>
+                    <div class="area-bar-grafik"><div class="isi-bar-grafik" style="width: 67.56%; background: #f59e0b;">67.56%</div></div>
+                </div>
+                <div class="batang-grafik">
+                    <div class="label-grafik">Take Down Dokumen</div>
+                    <div class="area-bar-grafik"><div class="isi-bar-grafik" style="width: 67.56%; background: #f59e0b;">67.56%</div></div>
+                </div>
+            </div>
+            
+            <div class="kotak-putih">
+                <h3 style="margin-top: 0;">Riwayat Analisis Terbaru</h3>
+                <table class="tabel-biasa" id="tabelRiwayat">
+                    <thead>
+                        <tr>
+                            <th>Waktu Analisis</th>
+                            <th>SOP Dievaluasi</th>
+                            <th>Dokumen 1</th>
+                            <th>Dokumen 2</th>
+                            <th>Status (Nilai)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="isiRiwayat">
+                        <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada analisis yang dilakukan pada sesi ini.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- HALAMAN 2: ANALISIS JACCARD -->
+        <div id="hal-analisis" class="halaman">
+            <h2 class="area-input" style="margin-top: 0;">Mesin Analisis Jaccard Similarity</h2>
+            
+            <div class="kotak-putih area-input">
+                <label><b>Pilih SOP untuk Dievaluasi:</b></label>
+                <select id="pilihanSOP">
+                    <option value="pengunggahan">SOP Pengunggahan Dokumen Hukum</option>
+                    <option value="penghapusan">SOP Penghapusan Dokumen Hukum</option>
+                    <option value="perubahan">SOP Perubahan Dokumen Hukum</option>
+                    <option value="takedown">SOP Take Down Dokumen Hukum</option>
+                </select>
+                <br><br>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;"><label>Berkas Provinsi (.bpmn)</label><input type="file" id="fileProv"></div>
+                    <div style="flex: 1;"><label>Berkas Kab/Kota (.bpmn)</label><input type="file" id="fileKota"></div>
+                </div>
+                <button id="tombolHitung" class="btn-eksekusi" onclick="jalankanRumus()">⚡ Hitung Jaccard Index</button>
+            </div>
+
+            <div id="layarLoading" class="area-loading">
+                <div class="roda-berputar"></div>
+                <p style="color: #f97316; font-weight: bold; font-size: 18px; margin-top: 20px;">Mengekstraksi Node & Edge Dokumen...</p>
+                <p style="color: #64748b; font-size: 13px; margin-top: -10px;">Harap tunggu, algoritma sedang melakukan komparasi struktur.</p>
+            </div>
+
+            <div id="kotakHasil" class="kotak-putih" style="display: none; border: 2px solid #1e3a8a;">
+                <h3 style="color: #1e3a8a; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;">Laporan Transparansi Perhitungan Algoritma</h3>
+                
+                <b>1. Evaluasi Fungsional (Node / Aktivitas)</b>
+                <div class="kotak-rumus">
+                    > Ditemukan <span id="r_node_iris">0</span> aktivitas yang sama persis (Irisan).<br>
+                    > Ditemukan total <span id="r_node_gabung">0</span> aktivitas unik keseluruhan (Gabungan).<br>
+                    > Rumus Node: (<span id="r_node_iris2">0</span> / <span id="r_node_gabung2">0</span>) * 100 = <b><span id="r_node_hasil">0</span>%</b>
+                </div>
+                
+                <br>
+                <b>2. Evaluasi Birokrasi (Edge / Alur Transisi)</b>
+                <div class="kotak-rumus">
+                    > Ditemukan <span id="r_edge_iris">0</span> transisi alur yang sama (Irisan).<br>
+                    > Ditemukan total <span id="r_edge_gabung">0</span> transisi alur keseluruhan (Gabungan).<br>
+                    > Rumus Edge: (<span id="r_edge_iris2">0</span> / <span id="r_edge_gabung2">0</span>) * 100 = <b><span id="r_edge_hasil">0</span>%</b>
+                </div>
+
+                <br>
+                <b>3. Nilai Akhir (Jaccard Index Total)</b>
+                <div class="kotak-rumus" style="background: #e0f2fe; border-color: #0ea5e9;">
+                    > Total Irisan Node & Edge = <span id="r_tot_iris">0</span><br>
+                    > Total Gabungan Node & Edge = <span id="r_tot_gabung">0</span><br>
+                    > Rumus Final: (<span id="r_tot_iris2">0</span> / <span id="r_tot_gabung2">0</span>) * 100 = <b style="font-size: 18px; color: blue;"><span id="r_tot_hasil">0</span>%</b>
+                </div>
+
+                <p style="margin-top: 20px; font-weight: bold; color: green; font-size: 18px;">Rekomendasi Keputusan: <span id="teksRekomendasi" style="color: #1e3a8a;">Memuat...</span></p>
+
+                <div class="grup-tombol">
+                    <button class="btn-cetak" onclick="window.print()">🖨️ Cetak Laporan PDF</button>
+                    <button class="btn-muat-ulang" onclick="resetAnalisis()">🔄 Muat Ulang Perhitungan</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let riwayatPertama = true; 
+
+        function bukaMenu(idHalaman, elemenTombol) {
+            let semuaHalaman = document.querySelectorAll('.halaman');
+            semuaHalaman.forEach(hal => hal.classList.remove('aktif'));
+            
+            let semuaTombol = document.querySelectorAll('.menu-btn');
+            semuaTombol.forEach(btn => btn.classList.remove('aktif'));
+            
+            document.getElementById(idHalaman).classList.add('aktif');
+            elemenTombol.classList.add('aktif');
+        }
+
+        function resetAnalisis() {
+            document.getElementById("fileProv").value = "";
+            document.getElementById("fileKota").value = "";
+            document.getElementById("pilihanSOP").selectedIndex = 0;
+            document.getElementById("kotakHasil").style.display = "none";
+            document.getElementById("layarLoading").style.display = "none";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function jalankanRumus() {
+            let tombol = document.getElementById("tombolHitung");
+            let dropdown = document.getElementById("pilihanSOP");
+            let jenis = dropdown.value;
+            let namaSOP = dropdown.options[dropdown.selectedIndex].text; 
+            
+            tombol.innerText = "Memproses Algoritma...";
+            tombol.disabled = true; 
+            document.getElementById("kotakHasil").style.display = "none"; 
+            document.getElementById("layarLoading").style.display = "block"; 
+            
+            setTimeout(() => {
+                
+                fetch('/api/hitung', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jenisSop: jenis })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("layarLoading").style.display = "none";
+                    document.getElementById("kotakHasil").style.display = "block";
+                    
+                    let d = data.data; 
+                    
+                    document.getElementById("r_node_iris").innerText = d.node_irisan;
+                    document.getElementById("r_node_gabung").innerText = d.node_gabungan;
+                    document.getElementById("r_node_iris2").innerText = d.node_irisan;
+                    document.getElementById("r_node_gabung2").innerText = d.node_gabungan;
+                    document.getElementById("r_node_hasil").innerText = d.node;
+
+                    document.getElementById("r_edge_iris").innerText = d.edge_irisan;
+                    document.getElementById("r_edge_gabung").innerText = d.edge_gabungan;
+                    document.getElementById("r_edge_iris2").innerText = d.edge_irisan;
+                    document.getElementById("r_edge_gabung2").innerText = d.edge_gabungan;
+                    document.getElementById("r_edge_hasil").innerText = d.edge;
+
+                    document.getElementById("r_tot_iris").innerText = d.total_irisan;
+                    document.getElementById("r_tot_gabung").innerText = d.total_gabungan;
+                    document.getElementById("r_tot_iris2").innerText = d.total_irisan;
+                    document.getElementById("r_tot_gabung2").innerText = d.total_gabungan;
+                    document.getElementById("r_tot_hasil").innerText = d.total;
+
+                    document.getElementById("teksRekomendasi").innerText = data.rekomendasi;
+
+                    let tabelIsi = document.getElementById("isiRiwayat");
+                    
+                    if (riwayatPertama) {
+                        tabelIsi.innerHTML = ""; 
+                        riwayatPertama = false;
+                    }
+
+                    let waktuSekarang = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                    let barisBaru = `
+                        <tr class="baris-baru">
+                            <td>Hari ini, ${waktuSekarang}</td>
+                            <td>${namaSOP}</td>
+                            <td>Provinsi.bpmn</td>
+                            <td>KabKota.bpmn</td>
+                            <td><b style="color: green;">Berhasil (${d.total}%)</b></td>
+                        </tr>
+                    `;
+
+                    tabelIsi.insertAdjacentHTML('afterbegin', barisBaru);
+
+                    tombol.innerText = "⚡ Hitung Jaccard Index";
+                    tombol.disabled = false;
+                });
+                
+            }, 1500); 
+        }
+    </script>
+</body>
+</html>
